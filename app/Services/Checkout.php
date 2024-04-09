@@ -1,26 +1,38 @@
 <?php
 
-namespace App\Checkout;
+namespace App\Services;
+
+use App\Services\PricingRules\PricingRule;
 
 class Checkout
 {
-    private array $items = [];
+    /**
+     * @var array<Product>
+     */
+    private array $products = [];
 
-    public function __construct(private array $pricingRules) {}
+    /**
+     * @param array<PricingRule> $pricingRules
+     */
+    public function __construct(private readonly array $pricingRules) {}
 
-    public function scan($item): void
+    public function scan(Product $product): void
     {
-        $this->items[] = $item;
+        $this->products[] = $product;
     }
 
     public function total(): string
     {
         $totalPrice = 0;
 
-        foreach ($this->items as $item) {
-
+        foreach ($this->products as $product) {
+            $totalPrice += $product->price;
         }
 
-        return number_format($totalPrice, 2);
+        foreach ($this->pricingRules as $pricingRule) {
+            $totalPrice -= $pricingRule->discount($this->products);
+        }
+
+        return number_format($totalPrice / 100, 2);
     }
 }

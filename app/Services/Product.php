@@ -2,7 +2,7 @@
 
 namespace App\Services;
 
-readonly class Item
+readonly class Product
 {
     public function __construct(
         public string $sku,
